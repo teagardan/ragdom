@@ -1,0 +1,36 @@
+import requests
+from bs4 import BeautifulSoup
+import webbrowser
+
+def search_geospatial_open_data():
+    search_url = "https://www.google.com/search?q=geospatial+open+data+sources"
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    
+    response = requests.get(search_url, headers=headers)
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    results = []
+    for result in soup.find_all('div', class_='yuRUbf'):
+        title = result.find('h3', class_='r').text
+        link = result.find('a')['href']
+        results.append((title, link))
+    
+    return results
+
+def display_results(results):
+    print("Top Geospatial Open Data Sources:")
+    for i, (title, link) in enumerate(results, 1):
+        print(f"{i}. {title}")
+        print(f"   {link}\n")
+
+def open_selected_link(results):
+    choice = int(input("Enter the number of the source you'd like to open (0 to exit): "))
+    if 0 < choice <= len(results):
+        webbrowser.open(results[choice-1][1])
+    elif choice != 0:
+        print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    results = search_geospatial_open_data()
+    display_results(results)
+    open_selected_link(results)
