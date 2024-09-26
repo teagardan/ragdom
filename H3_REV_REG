@@ -1,0 +1,177 @@
+import h3
+
+# Function to generate H3 index from latitude and longitude
+def generate_h3_index(lat, lon, resolution):
+    return h3.geo_to_h3(lat, lon, resolution)
+
+# Example usage
+latitude = 37.7749
+longitude = -122.4194
+resolution = 9
+h3_index = generate_h3_index(latitude, longitude, resolution)
+print(f"H3 Index: {h3_index}")
+# Function to generate H3 index from latitude and longitude
+def generate_h3_index(lat, lon, resolution):
+    return h3.geo_to_h3(lat, lon, resolution)
+    import pandas as pd
+    import folium
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    from sklearn.compose import ColumnTransformer
+    from sklearn.pipeline import Pipeline
+    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.metrics import mean_squared_error, r2_score
+
+    def predict_revenue(data):
+        # Assuming data is a pandas DataFrame with columns:
+        # 'sqft', 'population', 'latitude', 'longitude', 'category', 'revenue'
+
+        # Separate features and target
+        X = data.drop('revenue', axis=1)
+        y = data['revenue']
+
+        # Split the data into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+        # Define preprocessing steps
+        numeric_features = ['sqft', 'population', 'latitude', 'longitude']
+        categorical_features = ['category']
+
+        preprocessor = ColumnTransformer(
+            transformers=[
+                ('num', StandardScaler(), numeric_features),
+                ('cat', OneHotEncoder(drop='first', sparse=False), categorical_features)
+            ])
+
+        # Create a pipeline with preprocessor and RandomForestRegressor
+        model = Pipeline([
+            ('preprocessor', preprocessor),
+            ('regressor', RandomForestRegressor(n_estimators=100, random_state=42))
+        ])
+
+        # Fit the model
+        model.fit(X_train, y_train)
+
+        # Make predictions
+        y_pred = model.predict(X_test)
+
+        # Evaluate the model
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+
+        print(f"Mean Squared Error: {mse}")
+        print(f"R-squared Score: {r2}")
+
+        return model
+
+    def create_map(data, model):
+        # Make predictions for all data points
+        predicted_revenue = model.predict(data.drop('revenue', axis=1))
+        
+        # Add predictions to the dataframe
+        data['predicted_revenue'] = predicted_revenue
+
+        # Create a map centered on the mean latitude and longitude
+        map_center = [data['latitude'].mean(), data['longitude'].mean()]
+        m = folium.Map(location=map_center, zoom_start=10)
+
+        # Add markers for each building
+        for idx, row in data.iterrows():
+            popup_text = f"""
+            Category: {row['category']}
+            Sqft: {row['sqft']}
+            Population: {row['population']}
+            Actual Revenue: ${row['revenue']:,.2f}
+            Predicted Revenue: ${row['predicted_revenue']:,.2f}
+            """
+            folium.Marker(
+                location=[row['latitude'], row['longitude']],
+                popup=popup_text,
+                tooltip=f"Building {idx}"
+            ).add_to(m)
+
+        return m
+
+    # Example usage
+    # Assuming you have a CSV file with the required columns
+    # data = pd.read_csv('building_data.csv')
+    # trained_model = predict_revenue(data)
+    # map_with_predictions = create_map(data, trained_model)
+    # map_with_predictions.save('building_revenue_map.html')
+
+
+    def augment_llm_with_domain_content(llm, data_sources):
+        """
+        Augment a language model with domain-specific content from various sources.
+        
+        :param llm: The base language model to augment
+        :param data_sources: A dictionary containing different types of data sources
+        :return: An augmented language model
+        """
+        # SQL Database integration
+        if 'sql_db' in data_sources:
+            db_connection = data_sources['sql_db']
+            relevant_data = extract_relevant_data_from_sql(db_connection)
+            llm = fine_tune_with_sql_data(llm, relevant_data)
+        
+        # Document processing
+        if 'documents' in data_sources:
+            doc_paths = data_sources['documents']
+            processed_docs = process_documents(doc_paths)
+            llm = fine_tune_with_document_data(llm, processed_docs)
+        
+        # Table data integration
+        if 'tables' in data_sources:
+            table_data = data_sources['tables']
+            structured_data = process_table_data(table_data)
+            llm = fine_tune_with_structured_data(llm, structured_data)
+        
+        # Spatial dataset integration
+        if 'spatial_data' in data_sources:
+            spatial_dataset = data_sources['spatial_data']
+            processed_spatial_data = process_spatial_data(spatial_dataset)
+            llm = fine_tune_with_spatial_data(llm, processed_spatial_data)
+        
+        return llm
+
+    def extract_relevant_data_from_sql(db_connection):
+        # Implementation to extract and process SQL data
+        pass
+
+    def process_documents(doc_paths):
+        # Implementation to process and extract information from documents
+        pass
+
+    def process_table_data(table_data):
+        # Implementation to process structured table data
+        pass
+
+    def process_spatial_data(spatial_dataset):
+        # Implementation to process spatial data
+        pass
+
+    def fine_tune_with_sql_data(llm, sql_data):
+        # Implementation to fine-tune LLM with SQL data
+        return llm
+
+    def fine_tune_with_document_data(llm, doc_data):
+        # Implementation to fine-tune LLM with document data
+        return llm
+
+    def fine_tune_with_structured_data(llm, structured_data):
+        # Implementation to fine-tune LLM with structured data
+        return llm
+
+    def fine_tune_with_spatial_data(llm, spatial_data):
+        # Implementation to fine-tune LLM with spatial data
+        return llm
+
+    # Example usage
+    # base_llm = load_base_language_model()
+    # data_sources = {
+    #     'sql_db': sql_connection,
+    #     'documents': ['path/to/doc1.pdf', 'path/to/doc2.txt'],
+    #     'tables': [df1, df2],
+    #     'spatial_data': geopandas_dataframe
+    # }
+    # augmented_llm = augment_llm_with_domain_content(base_llm, data_sources)
